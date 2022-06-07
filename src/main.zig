@@ -65,7 +65,7 @@ pub fn copy(input: net.Stream, output_addr: net.Address) !void {
     t2.join();
 }
 
-pub fn main() !void {
+pub fn main() void {
     // init allocator
     var gpa = heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
@@ -102,5 +102,4 @@ pub fn main() !void {
         const client_thread = try thread.spawn(.{}, copy, .{ client.stream, output_addr });
         client_thread.detach();
     }
-    print("closing..\n", .{});
 }
