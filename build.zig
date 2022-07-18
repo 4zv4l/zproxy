@@ -9,7 +9,7 @@ pub fn build(b: *std.build.Builder) void {
 
     // Standard release options allow the person running `zig build` to select
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
-    const mode = std.builtin.Mode.ReleaseSmall;
+    const mode = b.standardReleaseOptions();
 
     const exe = b.addExecutable("proxy", "src/main.zig");
     exe.setTarget(target);
