@@ -8,7 +8,7 @@ const print = std.debug.print;
 
 // show to user how to use the program
 pub fn usage(file: []const u8) void {
-    print("usage: {s} [input [port]] [destination [ip] [port]]\n", .{file});
+    print("usage: {s} [input [port]] [destination [ip/hostname] [port]]\n", .{file});
     print("\n\tex: {s} 8080 anotherWebsite.com 80\n", .{file});
 }
 
@@ -40,20 +40,13 @@ pub fn getAll(reader: net.Stream.Reader, writer: net.Stream.Writer) void {
 
 /// copy data from input to output
 /// copy data from output to input
-pub fn copy(in: net.Stream, out_addr: net.Address) void {
+pub fn copy(in: net.Stream, out: net.Stream) void {
     // close the connection after this function end
     defer {
         in.close();
+        out.close();
         print("[+] client disconnected\n", .{});
     }
-
-    // connect to server
-    const out = net.tcpConnectToAddress(out_addr) catch {
-        print("[-] connect to {}\n", .{out_addr});
-        _ = in.writer().writeAll("[-] couldn't connect\n") catch {};
-        return;
-    };
-    defer out.close();
 
     // reader/writer from input/output
     var in_r = in.reader();
@@ -107,6 +100,7 @@ pub fn main() void {
         print("[-] not a number: {s}\n", .{in_port});
         return;
     };
+    // net.tcpConnectToHost
     const in_addr = net.Address.parseIp(in_ip, port) catch {
         print("[-] address error: {s}:{}\n", .{ in_ip, port });
         return;
@@ -117,10 +111,10 @@ pub fn main() void {
         print("[-] not a number: {s}\n", .{in_port});
         return;
     };
-    const out_addr = net.Address.parseIp(out_ip, port) catch {
-        print("[-] address error: {s}:{}\n", .{ out_ip, port });
-        return;
-    };
+    //const out_addr = net.Address.parseIp(out_ip, port) catch {
+    //    print("[-] address error: {s}:{}\n", .{ out_ip, port });
+    //    return;
+    //};
 
     // listen on input_addr
     var input = net.StreamServer.init(.{ .reuse_address = true });
@@ -141,8 +135,14 @@ pub fn main() void {
         print("[+] accepting a client: {}\n", .{conn.address});
         const cli = conn.stream;
 
+        // get target
+        const target = net.tcpConnectToHost(allocator, out_ip, port) catch {
+            print("[-] couldn't connecto to: {s}:{}\n", .{ out_ip, port });
+            continue;
+        };
+
         // thread to handle the client
-        const t = thread.spawn(.{}, copy, .{ cli, out_addr }) catch {
+        const t = thread.spawn(.{}, copy, .{ cli, target }) catch {
             print("[-] thread for client: {}\n", .{conn.address});
             continue;
         };
