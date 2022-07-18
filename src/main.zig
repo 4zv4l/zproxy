@@ -111,10 +111,6 @@ pub fn main() void {
         print("[-] not a number: {s}\n", .{in_port});
         return;
     };
-    //const out_addr = net.Address.parseIp(out_ip, port) catch {
-    //    print("[-] address error: {s}:{}\n", .{ out_ip, port });
-    //    return;
-    //};
 
     // listen on input_addr
     var input = net.StreamServer.init(.{ .reuse_address = true });
