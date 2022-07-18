@@ -53,7 +53,6 @@ pub fn copy(in: net.Stream, out_addr: net.Address) void {
         _ = in.writer().writeAll("[-] couldn't connect\n") catch {};
         return;
     };
-    print("[+] connect to {}\n", .{out_addr});
     defer out.close();
 
     // reader/writer from input/output
