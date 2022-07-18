@@ -1,6 +1,7 @@
 const std = @import("std");
 const net = std.net;
 const heap = std.heap;
+const os = std.os;
 const thread = std.Thread;
 const process = std.process;
 const fmt = std.fmt;
@@ -10,6 +11,14 @@ const print = std.debug.print;
 pub fn usage(file: []const u8) void {
     print("usage: {s} [input [port]] [destination [ip/hostname] [port]]\n", .{file});
     print("\n\tex: {s} 8080 anotherWebsite.com 80\n", .{file});
+}
+
+// do not stop when getting SIGPIPE
+pub fn handlePipe(sig: c_int, i: *const os.siginfo_t, d: ?*const anyopaque) callconv(.C) void {
+    _ = i;
+    _ = d;
+    _ = sig;
+    return;
 }
 
 /// get data from reader and write them to writer
@@ -120,6 +129,13 @@ pub fn main() void {
         return;
     };
     print("[+] Listening on {}\n", .{in_addr});
+
+    // setup signal catcher
+    const sigact = os.Sigaction{ .handler = .{ .sigaction = handlePipe }, .mask = undefined, .flags = undefined, .restorer = undefined };
+    os.sigaction(os.SIG.PIPE, &sigact, null) catch {
+        print("[-] Signal handling\n", .{});
+        print("[-] Still running\n", .{});
+    };
 
     // main loop catching clients
     while (true) {
