@@ -13,21 +13,19 @@ pub fn usage(file: []const u8) void {
     print("\n\tex: {s} 8080 anotherWebsite.com 80\n", .{file});
 }
 
-<<<<<<< HEAD
 // check args number
 pub fn parseArgs(argv: [][:0]const u8) void {
     if (argv.len != 4) {
         usage(argv[0]);
         process.exit(1);
     }
-=======
+}
 // do not stop when getting SIGPIPE
 pub fn handlePipe(sig: c_int, i: *const os.siginfo_t, d: ?*const anyopaque) callconv(.C) void {
     _ = i;
     _ = d;
     _ = sig;
     return;
->>>>>>> a385c37a29ecf15af9cc6070df4088c033b75741
 }
 
 /// get data from reader and write them to writer
