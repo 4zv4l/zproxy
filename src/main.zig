@@ -6,11 +6,13 @@ const process = std.process;
 const fmt = std.fmt;
 const print = std.debug.print;
 
+// show to user how to use the program
 pub fn usage(file: []const u8) void {
     print("usage: {s} [input [port]] [destination [ip] [port]]\n", .{file});
     print("\n\tex: {s} 8080 anotherWebsite.com 80\n", .{file});
 }
 
+// check args number
 pub fn parseArgs(argv: [][:0]const u8) void {
     if (argv.len != 4) {
         usage(argv[0]);
